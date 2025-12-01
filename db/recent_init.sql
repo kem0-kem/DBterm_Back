@@ -31,13 +31,16 @@ CREATE DOMAIN money_amount AS NUMERIC(18,2)
 --    - Authorization: Admin만 삽입/수정 가능 (DB 레벨 권한은 뒤쪽 GRANT에서 예시)
 -- -----------------------------------------------------------------
 CREATE TABLE app_user (
-  user_id   BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-  username  VARCHAR(100) NOT NULL,
-  email     VARCHAR(320) NOT NULL,
-  role      user_role    NOT NULL,
+  user_id     BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  username    VARCHAR(100) NOT NULL,
+  password    VARCHAR(255) NOT NULL,
+  name        VARCHAR(100) NOT NULL,
+  phone_num   VARCHAR(30)  NOT NULL,
+  email       VARCHAR(320) NOT NULL DEFAULT 'default@dbterm.local',
+  role        user_role    NOT NULL DEFAULT 'DONOR',
 
-  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
 
   CONSTRAINT uq_app_user_username UNIQUE (username),
   CONSTRAINT uq_app_user_email    UNIQUE (email)
