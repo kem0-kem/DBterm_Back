@@ -1,4 +1,4 @@
-package com.dbterm.dbtermback.controller;
+package com.dbterm.dbtermback.hellocontroller;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
