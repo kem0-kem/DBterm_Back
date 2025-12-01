@@ -1,0 +1,17 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: dbterm-postgres
+    restart: always
+    environment:
+      POSTGRES_DB: dbterm
+      POSTGRES_USER: termadmin
+      POSTGRES_PASSWORD: test1234
+    ports:
+      - "5433:5432" 
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./db/recent_init.sql:/docker-entrypoint-initdb.d/01_recent_init.sql:ro
+
+volumes:
+  postgres_data:
