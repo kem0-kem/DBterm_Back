@@ -37,7 +37,7 @@ CREATE TABLE app_user (
   name        VARCHAR(100) NOT NULL,
   phone_num   VARCHAR(30)  NOT NULL,
   email       VARCHAR(320) NOT NULL DEFAULT 'default@dbterm.local',
-  role        user_role    NOT NULL DEFAULT 'DONOR',
+  role        VARCHAR(20)  NOT NULL DEFAULT 'DONOR',
 
   created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
