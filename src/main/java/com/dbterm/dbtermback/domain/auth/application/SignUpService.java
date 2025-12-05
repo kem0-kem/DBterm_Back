@@ -26,7 +26,6 @@ public class SignUpService {
         user.setPassword(encodedPassword);
         user.setName(request.getName());
         user.setPhoneNum(request.getPhoneNum());
-        user.setEmail(request.getEmail() != null ? request.getEmail() : "default@dbterm.local");//더미,추후구현예정
         user.setRole(UserRole.DONOR);
 
         userRepository.save(user);

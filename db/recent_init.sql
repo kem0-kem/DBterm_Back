@@ -25,25 +25,24 @@ CREATE DOMAIN money_amount AS NUMERIC(18,2)
   CHECK (VALUE >= 0);
 
 -- -----------------------------------------------------------------
--- 1. User(user_id, username, email, role)
+-- 1. User(user_id, username, role, is_anonymous)
 --    - Primary key: user_id
---    - Unique: username, email
+--    - Unique: username
 --    - Authorization: Admin만 삽입/수정 가능 (DB 레벨 권한은 뒤쪽 GRANT에서 예시)
 -- -----------------------------------------------------------------
 CREATE TABLE app_user (
-  user_id     BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-  username    VARCHAR(100) NOT NULL,
-  password    VARCHAR(255) NOT NULL,
-  name        VARCHAR(100) NOT NULL,
-  phone_num   VARCHAR(30)  NOT NULL,
-  email       VARCHAR(320) NOT NULL DEFAULT 'default@dbterm.local',
-  role        VARCHAR(20)  NOT NULL DEFAULT 'DONOR',
+  user_id      BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  username     VARCHAR(100) NOT NULL,
+  password     VARCHAR(255) NOT NULL,
+  name         VARCHAR(100) NOT NULL,
+  phone_num    VARCHAR(30)  NOT NULL,
+  role         VARCHAR(20)  NOT NULL DEFAULT 'DONOR',
+  is_anonymous BOOLEAN      NOT NULL DEFAULT FALSE,
 
-  created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-  updated_at  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  created_at   TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at   TIMESTAMPTZ NOT NULL DEFAULT NOW(),
 
-  CONSTRAINT uq_app_user_username UNIQUE (username),
-  CONSTRAINT uq_app_user_email    UNIQUE (email)
+  CONSTRAINT uq_app_user_username UNIQUE (username)
 );
 
 CREATE OR REPLACE FUNCTION trg_app_user_set_updated_at()
@@ -60,7 +59,8 @@ FOR EACH ROW
 EXECUTE FUNCTION trg_app_user_set_updated_at();
 
 -- -----------------------------------------------------------------
--- 2. Campaign(campaign_id, title, description, start_date, end_date, created_by)
+-- 2. Campaign(campaign_id, title, description, department, goal_amount,
+--             start_date, end_date, created_by)
 --    - Primary key: campaign_id
 --    - Foreign key: created_by → User(user_id)
 -- -----------------------------------------------------------------
@@ -68,12 +68,14 @@ CREATE TABLE campaign (
   campaign_id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
   title       VARCHAR(255) NOT NULL,
   description TEXT,
+  department  VARCHAR(100),
+  goal_amount money_amount,
   start_date  DATE NOT NULL,
   end_date    DATE NOT NULL,
   created_by  BIGINT NOT NULL REFERENCES app_user(user_id),
 
-  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
 
   CONSTRAINT chk_campaign_date_range CHECK (end_date >= start_date)
 );
@@ -92,20 +94,22 @@ FOR EACH ROW
 EXECUTE FUNCTION trg_campaign_set_updated_at();
 
 -- -----------------------------------------------------------------
--- 3. Donation(donation_id, donor_id, campaign_id, amount, donated_at, verified)
+-- 3. Donation(donation_id, donor_id, campaign_id, amount,
+--             payment_method, donated_at, verified)
 --    - Primary key: donation_id
 --    - Foreign key: donor_id → User(user_id)
 --                    campaign_id → Campaign(campaign_id)
 --    - Constraint: amount > 0
 -- -----------------------------------------------------------------
 CREATE TABLE donation (
-  donation_id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-  donor_id    BIGINT NOT NULL REFERENCES app_user(user_id),
-  campaign_id BIGINT NOT NULL REFERENCES campaign(campaign_id),
+  donation_id    BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  donor_id       BIGINT NOT NULL REFERENCES app_user(user_id),
+  campaign_id    BIGINT NOT NULL REFERENCES campaign(campaign_id),
 
-  amount      NUMERIC(18,2) NOT NULL,
-  donated_at  TIMESTAMPTZ   NOT NULL DEFAULT NOW(),
-  verified    BOOLEAN       NOT NULL DEFAULT FALSE,
+  amount         NUMERIC(18,2) NOT NULL,
+  payment_method VARCHAR(30)   NOT NULL,
+  donated_at     TIMESTAMPTZ   NOT NULL DEFAULT NOW(),
+  verified       BOOLEAN       NOT NULL DEFAULT FALSE,
 
   CONSTRAINT chk_donation_amount_positive CHECK (amount > 0)
 );
