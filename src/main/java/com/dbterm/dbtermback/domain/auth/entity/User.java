@@ -24,12 +24,12 @@ public class User {
     @Column(name = "phone_num", nullable = false, length = 30)
     private String phoneNum;
 
-    @Column(name = "email", nullable = false, length = 320)
-    private String email;
-
     @Enumerated(EnumType.STRING)
     @Column(name = "role", nullable = false, length = 20)
     private UserRole role;
+
+    @Column(name = "is_anonymous", nullable = false)
+    private boolean isAnonymous;
 
     @Column(name = "created_at", insertable = false, updatable = false)
     private LocalDateTime createdAt;
@@ -80,20 +80,20 @@ public class User {
         this.phoneNum = phoneNum;
     }
 
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
     public UserRole getRole() {
         return role;
     }
 
     public void setRole(UserRole role) {
         this.role = role;
+    }
+
+    public boolean isAnonymous() {
+        return isAnonymous;
+    }
+
+    public void setAnonymous(boolean anonymous) {
+        isAnonymous = anonymous;
     }
 
     public LocalDateTime getCreatedAt() {

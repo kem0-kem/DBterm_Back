@@ -6,7 +6,6 @@ public class SignUpRequest {
     private String password;
     private String name;
     private String phoneNum;
-    private String email;
 
     public String getUsername() {
         return username;
@@ -22,9 +21,5 @@ public class SignUpRequest {
 
     public String getPhoneNum() {
         return phoneNum;
-    }
-
-    public String getEmail() {
-        return email;
     }
 }
