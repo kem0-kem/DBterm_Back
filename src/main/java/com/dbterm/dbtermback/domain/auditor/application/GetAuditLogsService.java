@@ -4,6 +4,7 @@ import com.dbterm.dbtermback.domain.auditor.dto.response.AuditLogResponse;
 import com.dbterm.dbtermback.domain.auditor.entity.AuditLog;
 import com.dbterm.dbtermback.domain.auditor.repository.AuditLogRepository;
 import java.time.LocalDateTime;
+import java.time.Month;
 import java.util.stream.Collectors;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -23,9 +24,31 @@ public class GetAuditLogsService {
         this.auditLogRepository = auditLogRepository;
     }
 
-    public Page<AuditLogResponse> getAuditLogs(String table, LocalDateTime from, LocalDateTime to, Long actorUserId, int page, int size) {
+    public Page<AuditLogResponse> getAuditLogs(
+            String table,
+            LocalDateTime from,
+            LocalDateTime to,
+            Long actorUserId, // 현재는 사용하지 않지만, 컨트롤러 시그니처 유지를 위해 남겨둠
+            int page,
+            int size
+    ) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "eventTime"));
-        Page<AuditLog> logs = auditLogRepository.findByFilters(table, from, to, actorUserId, pageable);
+
+        LocalDateTime effectiveFrom = (from != null)
+                ? from
+                : LocalDateTime.of(1970, Month.JANUARY, 1, 0, 0);
+
+        LocalDateTime effectiveTo = (to != null)
+                ? to
+                : LocalDateTime.of(9999, Month.DECEMBER, 31, 23, 59, 59);
+
+        Page<AuditLog> logs = auditLogRepository.findByFilters(
+                table,
+                effectiveFrom,
+                effectiveTo,
+                pageable
+        );
+
         return new PageImpl<>(
                 logs.stream().map(this::toResponse).collect(Collectors.toList()),
                 pageable,

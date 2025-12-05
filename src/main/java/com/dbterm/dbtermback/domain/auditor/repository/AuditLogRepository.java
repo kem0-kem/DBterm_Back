@@ -10,6 +10,17 @@ import org.springframework.data.repository.query.Param;
 
 public interface AuditLogRepository extends JpaRepository<AuditLog, Long> {
 
-    @Query("select a from AuditLog a where (:table is null or a.objectTable = :table) and (:from is null or a.eventTime >= :from) and (:to is null or a.eventTime <= :to) and (:actorUserId is null or a.actorUserId = :actorUserId)")
-    Page<AuditLog> findByFilters(@Param("table") String table, @Param("from") LocalDateTime from, @Param("to") LocalDateTime to, @Param("actorUserId") Long actorUserId, Pageable pageable);
+    @Query("""
+        select a
+        from AuditLog a
+        where (:table is null or a.objectTable = :table)
+          and a.eventTime between :from and :to
+        order by a.eventTime desc
+        """)
+    Page<AuditLog> findByFilters(
+            @Param("table") String table,
+            @Param("from") LocalDateTime from,
+            @Param("to") LocalDateTime to,
+            Pageable pageable
+    );
 }

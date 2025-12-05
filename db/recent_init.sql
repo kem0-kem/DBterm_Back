@@ -300,15 +300,16 @@ JOIN disbursement ds ON ds.disbursement_id = d.disbursement_id;
 --    - Constraint: append-only (삭제/수정 불가)
 -- -----------------------------------------------------------------
 CREATE TABLE audit_log (
-  audit_id      BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-  event_time    TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-  actor_user_id BIGINT REFERENCES app_user(user_id),
-  action        VARCHAR(100) NOT NULL,
-  object_table  VARCHAR(100) NOT NULL,
-  object_id     BIGINT,
-  old_data      JSONB,
-  new_data      JSONB
+    audit_id       BIGSERIAL PRIMARY KEY,
+    event_time     TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    actor_user_id  BIGINT,
+    action         VARCHAR(255) NOT NULL,
+    object_table   VARCHAR(100) NOT NULL,
+    object_id      BIGINT,
+    old_data       TEXT,
+    new_data       TEXT
 );
+
 
 -- audit_log는 UPDATE/DELETE 금지
 CREATE OR REPLACE FUNCTION fn_prevent_audit_log_modification()
