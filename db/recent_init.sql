@@ -15,11 +15,8 @@
 -- -----------------------------------------------------------------
 -- 0. 타입 & 도메인 정의
 -- -----------------------------------------------------------------
-CREATE TYPE user_role AS ENUM ('ADMIN', 'OPERATOR', 'ACCOUNTANT', 'AUDITOR', 'DONOR');
-
-CREATE TYPE allocation_status AS ENUM ('PENDING', 'APPROVED', 'REJECTED');
-CREATE TYPE disbursement_status AS ENUM ('PENDING', 'EXECUTED', 'FAILED', 'CANCELLED');
-
+-- ENUM(user_role, allocation_status, disbursement_status)는 더 이상 사용하지 않음
+-- 역할/상태는 VARCHAR로 관리
 -- 금액 공통 도메인 (양수 또는 0)
 CREATE DOMAIN money_amount AS NUMERIC(18,2)
   CHECK (VALUE >= 0);
@@ -156,7 +153,7 @@ CREATE TABLE allocation (
   receiver_id   BIGINT NOT NULL REFERENCES receiver(receiver_id),
 
   amount        money_amount NOT NULL,
-  status        allocation_status NOT NULL DEFAULT 'PENDING',
+  status        VARCHAR(30) NOT NULL DEFAULT 'PENDING',
 
   created_at    TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at    TIMESTAMPTZ NOT NULL DEFAULT NOW()
@@ -231,7 +228,7 @@ CREATE TABLE disbursement (
 
   executed_at     TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   amount          money_amount NOT NULL,
-  status          disbursement_status NOT NULL DEFAULT 'PENDING',
+  status          VARCHAR(20) NOT NULL DEFAULT 'PENDING',
   payment_tx_ref  VARCHAR(255),
 
   CONSTRAINT uq_disbursement_allocation UNIQUE (allocation_id)
@@ -275,12 +272,12 @@ EXECUTE FUNCTION fn_check_disbursement_amount();
 --    - Constraint: file_hash NOT NULL
 -- -----------------------------------------------------------------
 CREATE TABLE document (
-  document_id    BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  document_id     BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
   disbursement_id BIGINT NOT NULL REFERENCES disbursement(disbursement_id),
-  storage_path   TEXT   NOT NULL,
-  file_hash      TEXT   NOT NULL,   -- 위변조 검증용
-  uploaded_by    BIGINT NOT NULL REFERENCES app_user(user_id),
-  uploaded_at    TIMESTAMPTZ NOT NULL DEFAULT NOW()
+  storage_path    TEXT   NOT NULL,
+  file_hash       TEXT   NOT NULL,   -- 위변조 검증용
+  uploaded_by     BIGINT NOT NULL REFERENCES app_user(user_id),
+  uploaded_at     TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 -- 후원자에게는 전체 경로 대신 요약 정보만 제공하기 위한 VIEW
