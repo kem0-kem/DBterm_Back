@@ -15,7 +15,9 @@ public class LoginService {
     private final PasswordEncoder passwordEncoder;
     private final TokenProvider tokenProvider;
 
-    public LoginService(UserRepository userRepository, PasswordEncoder passwordEncoder, TokenProvider tokenProvider) {
+    public LoginService(UserRepository userRepository,
+                        PasswordEncoder passwordEncoder,
+                        TokenProvider tokenProvider) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.tokenProvider = tokenProvider;
@@ -31,6 +33,12 @@ public class LoginService {
 
         String token = tokenProvider.generateToken(user.getId(), user.getRole());
 
-        return new LoginResponse(token, user.getRole(), user.getId());
+        return new LoginResponse(
+                token,
+                user.getRole(),
+                user.getId(),
+                user.getUsername(),
+                user.getName()
+        );
     }
 }

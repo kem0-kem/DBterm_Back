@@ -9,7 +9,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/auth")
+@RequestMapping("/api/users")
 public class UserProfileController {
 
     private final UpdateProfileService updateProfileService;
@@ -30,3 +30,4 @@ public class UserProfileController {
         return ResponseEntity.ok("profile updated");
     }
 }
+

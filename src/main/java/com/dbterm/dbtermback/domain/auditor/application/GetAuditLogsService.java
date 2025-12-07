@@ -28,7 +28,7 @@ public class GetAuditLogsService {
             String table,
             LocalDateTime from,
             LocalDateTime to,
-            Long actorUserId, // 현재는 사용하지 않지만, 컨트롤러 시그니처 유지를 위해 남겨둠
+            Long actorUserId,
             int page,
             int size
     ) {

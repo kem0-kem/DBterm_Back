@@ -19,7 +19,7 @@ public class AllocationApprovalController {
         this.approveAllocationsService = approveAllocationsService;
     }
 
-    @PreAuthorize("hasRole('OPERATOR')")
+    @PreAuthorize("hasRole('OPERATOR') or hasRole('ADMIN')")
     @PostMapping("/approve")
     public AllocationApprovalResultResponse approveAllocations(@RequestBody ApproveAllocationsRequest request) {
         return approveAllocationsService.approve(request);

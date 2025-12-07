@@ -11,7 +11,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/allocations")
-@PreAuthorize("hasRole('ACCOUNTANT')")
+@PreAuthorize("hasRole('ACCOUNTANT') or hasRole('ADMIN')")
 public class AllocationAccountantController {
 
     private final GetApprovedAllocationsService getApprovedAllocationsService;

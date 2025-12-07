@@ -60,17 +60,37 @@ public class AuditLoggingService {
             if (authentication == null || !authentication.isAuthenticated()) {
                 return null;
             }
-            Object principal = authentication.getPrincipal();
 
-            if (principal instanceof com.dbterm.dbtermback.domain.auth.entity.User) {
-                return ((com.dbterm.dbtermback.domain.auth.entity.User) principal).getId();
+            Object principal = authentication.getPrincipal();
+            if (principal == null) {
+                return null;
             }
 
+            // 1) principal이 User 엔티티인 경우
+            if (principal instanceof com.dbterm.dbtermback.domain.auth.entity.User user) {
+                return user.getId();
+            }
+
+            // 2) principal이 숫자 타입(Long, Integer 등)인 경우
+            if (principal instanceof Number n) {
+                return n.longValue();
+            }
+
+            // 3) principal이 "1", "2" 같은 문자열인 경우
+            if (principal instanceof String s) {
+                try {
+                    return Long.parseLong(s);
+                } catch (NumberFormatException ignored) {
+                    // username 같은 경우는 여기서 걸릴 수 있음 → 무시하고 아래로
+                }
+            }
+
+            // 4) principal에 getId() 메서드가 있는 커스텀 타입인 경우 (기존 로직 유지)
             try {
                 java.lang.reflect.Method getIdMethod = principal.getClass().getMethod("getId");
                 Object id = getIdMethod.invoke(principal);
-                if (id instanceof Number) {
-                    return ((Number) id).longValue();
+                if (id instanceof Number n) {
+                    return n.longValue();
                 }
             } catch (Exception ignored) {
             }
@@ -80,4 +100,5 @@ public class AuditLoggingService {
             return null;
         }
     }
+
 }

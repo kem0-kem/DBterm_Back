@@ -20,14 +20,18 @@ public class CampaignListController {
         this.getCampaignListService = getCampaignListService;
     }
 
+    /**
+     * 캠페인 목록 조회
+     * - status 필터 없이 모든 캠페인 조회
+     * - 기본 정렬 기준: id 오름차순
+     */
     @GetMapping
     public Page<CampaignListItemResponse> getCampaigns(
-            @RequestParam(name = "status", required = false, defaultValue = "active") String status,
-            @RequestParam(name = "sortBy", required = false, defaultValue = "name") String sortBy,
+            @RequestParam(name = "sortBy", required = false, defaultValue = "id") String sortBy,
             @RequestParam(name = "page", required = false, defaultValue = "0") int page,
-            @RequestParam(name = "size", required = false, defaultValue = "20") int size
+            @RequestParam(name = "size", required = false, defaultValue = "50") int size
     ) {
         Pageable pageable = PageRequest.of(page, size);
-        return getCampaignListService.getCampaigns(status, sortBy, pageable);
+        return getCampaignListService.getCampaigns(sortBy, pageable);
     }
 }
