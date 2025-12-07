@@ -19,6 +19,7 @@ public class SignUpService {
     }
 
     public void signUp(SignUpRequest request) {
+
         String encodedPassword = passwordEncoder.encode(request.getPassword());
 
         User user = new User();
@@ -26,7 +27,13 @@ public class SignUpService {
         user.setPassword(encodedPassword);
         user.setName(request.getName());
         user.setPhoneNum(request.getPhoneNum());
-        user.setRole(UserRole.DONOR);
+
+        // ⭐ USE ROLE SENT FROM FRONTEND
+        UserRole role = request.getRole();
+        if (role == null) {
+            role = UserRole.DONOR; // fallback default
+        }
+        user.setRole(role);
 
         userRepository.save(user);
     }
