@@ -3,6 +3,8 @@ package com.dbterm.dbtermback.domain.donor.application;
 import com.dbterm.dbtermback.domain.donor.dto.response.DonationSummaryResponse;
 import com.dbterm.dbtermback.domain.donor.entity.Donation;
 import com.dbterm.dbtermback.domain.donor.repository.DonationRepository;
+import com.dbterm.dbtermback.domain.operator.entity.Campaign;
+import com.dbterm.dbtermback.domain.operator.repository.CampaignRepository;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,13 +17,19 @@ import java.util.List;
 public class GetMyDonationsService {
 
     private final DonationRepository donationRepository;
+    private final CampaignRepository campaignRepository;
 
-    public GetMyDonationsService(DonationRepository donationRepository) {
+    public GetMyDonationsService(DonationRepository donationRepository,
+                                 CampaignRepository campaignRepository) {
         this.donationRepository = donationRepository;
+        this.campaignRepository = campaignRepository;
     }
 
     @Transactional(readOnly = true)
-    public List<DonationSummaryResponse> getMyDonations(Long donorId, String period, String sortBy, String order) {
+    public List<DonationSummaryResponse> getMyDonations(Long donorId,
+                                                        String period,
+                                                        String sortBy,
+                                                        String order) {
         Sort sort = buildSort(sortBy, order);
 
         List<Donation> donations;
@@ -36,14 +44,20 @@ public class GetMyDonationsService {
         }
 
         return donations.stream()
-                .map(d -> new DonationSummaryResponse(
-                        d.getId(),
-                        d.getCampaignId(),
-                        d.getAmount(),
-                        d.getPaymentMethod(),
-                        d.getDonatedAt(),
-                        d.getVerified()
-                ))
+                .map(donation -> {
+                    Campaign campaign = campaignRepository.findById(donation.getCampaignId())
+                            .orElse(null);
+                    String campaignTitle = campaign != null ? campaign.getTitle() : null;
+                    return new DonationSummaryResponse(
+                            donation.getId(),
+                            donation.getCampaignId(),
+                            campaignTitle,
+                            donation.getAmount(),
+                            donation.getPaymentMethod(),
+                            donation.getDonatedAt(),
+                            donation.getVerified()
+                    );
+                })
                 .toList();
     }
 

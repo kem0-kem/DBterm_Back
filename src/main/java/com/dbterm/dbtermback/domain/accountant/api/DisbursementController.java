@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/disbursements")
-@PreAuthorize("hasRole('ACCOUNTANT')")
+@PreAuthorize("hasRole('ACCOUNTANT') or hasRole('ADMIN')")
 public class DisbursementController {
 
     private final CreateDisbursementService createDisbursementService;

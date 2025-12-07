@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/documents")
-@PreAuthorize("hasRole('ACCOUNTANT')")
+@PreAuthorize("hasRole('ACCOUNTANT') or hasRole('ADMIN')")
 public class DocumentController {
 
     private final CreateDocumentMetadataService createDocumentMetadataService;

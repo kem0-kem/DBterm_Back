@@ -4,16 +4,24 @@ import java.time.LocalDateTime;
 
 public class DonationSummaryResponse {
 
-    private Long donationId;
-    private Long campaignId;
-    private Double amount;
-    private String paymentMethod;
-    private LocalDateTime donatedAt;
-    private Boolean verified;
+    private final Long donationId;
+    private final Long campaignId;
+    private final String campaignTitle;
+    private final Double amount;
+    private final String paymentMethod;
+    private final LocalDateTime donatedAt;
+    private final Boolean verified;
 
-    public DonationSummaryResponse(Long donationId, Long campaignId, Double amount, String paymentMethod, LocalDateTime donatedAt, Boolean verified) {
+    public DonationSummaryResponse(Long donationId,
+                                   Long campaignId,
+                                   String campaignTitle,
+                                   Double amount,
+                                   String paymentMethod,
+                                   LocalDateTime donatedAt,
+                                   Boolean verified) {
         this.donationId = donationId;
         this.campaignId = campaignId;
+        this.campaignTitle = campaignTitle;
         this.amount = amount;
         this.paymentMethod = paymentMethod;
         this.donatedAt = donatedAt;
@@ -26,6 +34,10 @@ public class DonationSummaryResponse {
 
     public Long getCampaignId() {
         return campaignId;
+    }
+
+    public String getCampaignTitle() {
+        return campaignTitle;
     }
 
     public Double getAmount() {

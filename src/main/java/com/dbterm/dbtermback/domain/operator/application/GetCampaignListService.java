@@ -3,18 +3,18 @@ package com.dbterm.dbtermback.domain.operator.application;
 import com.dbterm.dbtermback.domain.operator.dto.response.CampaignListItemResponse;
 import com.dbterm.dbtermback.domain.operator.entity.Campaign;
 import com.dbterm.dbtermback.domain.operator.repository.CampaignRepository;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
-
-import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@Transactional(readOnly = true)
 public class GetCampaignListService {
 
     private final CampaignRepository campaignRepository;
@@ -23,64 +23,54 @@ public class GetCampaignListService {
         this.campaignRepository = campaignRepository;
     }
 
-    public Page<CampaignListItemResponse> getCampaigns(String status, String sortBy, Pageable pageable) {
+    /**
+     * 캠페인 전체 조회 + 정렬 + 페이징
+     *
+     * @param sortBy  정렬 기준 (id, startDate, endDate, createdAt, name)
+     * @param pageable 페이징 정보
+     */
+    public Page<CampaignListItemResponse> getCampaigns(String sortBy, Pageable pageable) {
+
+        // 1) 전체 캠페인 조회 (status 필터 없음)
         List<Campaign> all = campaignRepository.findAll();
-        LocalDate today = LocalDate.now();
 
-        String normalizedStatus = status == null ? "active" : status.toLowerCase(Locale.ROOT);
-        List<Campaign> filtered = all.stream()
-                .filter(campaign -> filterByStatus(campaign, normalizedStatus, today))
+        // 2) 정렬 기준 적용
+        Comparator<Campaign> comparator = buildComparator(sortBy);
+        List<Campaign> sorted = all.stream()
+                .sorted(comparator)
                 .collect(Collectors.toList());
 
-        String normalizedSort = sortBy == null ? "name" : sortBy.toLowerCase(Locale.ROOT);
-        Comparator<Campaign> comparator = buildComparator(normalizedSort);
-        filtered.sort(comparator);
-
-        int total = filtered.size();
-        int pageSize = pageable.getPageSize();
-        int currentPage = pageable.getPageNumber();
-        int fromIndex = currentPage * pageSize;
-        if (fromIndex >= total) {
-            return new PageImpl<>(List.of(), pageable, total);
+        // 3) 페이징 슬라이스
+        int start = (int) pageable.getOffset();
+        int end = Math.min(start + pageable.getPageSize(), sorted.size());
+        if (start > end) {
+            start = end;
         }
-        int toIndex = Math.min(fromIndex + pageSize, total);
 
-        List<CampaignListItemResponse> content = filtered.subList(fromIndex, toIndex)
-                .stream()
+        List<CampaignListItemResponse> content = sorted.subList(start, end).stream()
                 .map(CampaignListItemResponse::fromEntity)
-                .collect(Collectors.toList());
+                .toList();
 
-        return new PageImpl<>(content, pageable, total);
-    }
-
-    private boolean filterByStatus(Campaign campaign, String status, LocalDate today) {
-        LocalDate start = campaign.getStartDate();
-        LocalDate end = campaign.getEndDate();
-
-        if ("upcoming".equals(status)) {
-            return start != null && start.isAfter(today);
-        }
-        if ("ended".equals(status)) {
-            return end != null && end.isBefore(today);
-        }
-        if ("all".equals(status)) {
-            return true;
-        }
-        boolean startsBeforeOrToday = start == null || !start.isAfter(today);
-        boolean endsAfterOrToday = end == null || !end.isBefore(today);
-        return startsBeforeOrToday && endsAfterOrToday;
+        return new PageImpl<>(content, pageable, sorted.size());
     }
 
     private Comparator<Campaign> buildComparator(String sortBy) {
-        if ("startdate".equals(sortBy)) {
-            return Comparator.comparing(Campaign::getStartDate, Comparator.nullsLast(Comparator.naturalOrder()));
+        if (sortBy == null) {
+            return Comparator.comparing(Campaign::getId);
         }
-        if ("enddate".equals(sortBy)) {
-            return Comparator.comparing(Campaign::getEndDate, Comparator.nullsLast(Comparator.naturalOrder()));
-        }
-        if ("createdat".equals(sortBy)) {
-            return Comparator.comparing(Campaign::getCreatedAt, Comparator.nullsLast(Comparator.reverseOrder()));
-        }
-        return Comparator.comparing(Campaign::getTitle, Comparator.nullsLast(String::compareToIgnoreCase));
+
+        String key = sortBy.toLowerCase(Locale.ROOT);
+
+        return switch (key) {
+            case "id" -> Comparator.comparing(Campaign::getId);
+            case "startdate" -> Comparator.comparing(Campaign::getStartDate);
+            case "enddate" -> Comparator.comparing(Campaign::getEndDate);
+            case "createdat" -> Comparator.comparing(Campaign::getCreatedAt);
+            case "name", "title" -> Comparator.comparing(
+                    Campaign::getTitle,
+                    String.CASE_INSENSITIVE_ORDER
+            );
+            default -> Comparator.comparing(Campaign::getId);
+        };
     }
 }

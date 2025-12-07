@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/receivers")
-@PreAuthorize("hasRole('ACCOUNTANT')")
+@PreAuthorize("hasRole('OPERATOR') or hasRole('ADMIN')")
 public class ReceiverController {
 
     private final CreateReceiverService createReceiverService;

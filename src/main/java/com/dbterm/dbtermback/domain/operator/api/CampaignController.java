@@ -23,7 +23,7 @@ public class CampaignController {
     }
 
     @PostMapping
-    @PreAuthorize("hasRole('OPERATOR')")
+    @PreAuthorize("hasRole('OPERATOR') or hasRole('ADMIN')")
     public ResponseEntity<?> createCampaign(@RequestBody CreateCampaignRequest request) {
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();

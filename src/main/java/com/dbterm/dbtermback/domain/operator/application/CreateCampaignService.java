@@ -7,7 +7,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-@PreAuthorize("hasRole('OPERATOR')")
+@PreAuthorize("hasRole('OPERATOR') or hasRole('ADMIN')")
 @Service
 public class CreateCampaignService {
 

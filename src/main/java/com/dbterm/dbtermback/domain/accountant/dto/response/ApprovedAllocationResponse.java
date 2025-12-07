@@ -10,45 +10,55 @@ import java.time.ZoneOffset;
 
 public class ApprovedAllocationResponse {
 
-    private Long allocationId;
-    private Long donationId;
-    private Long campaignId;
-    private Long receiverId;
-    private BigDecimal amount;
-    private AllocationStatus status;
-    private OffsetDateTime createdAt;
+    private final Long allocationId;
+    private final Long donationId;
+    private final Long campaignId;
+    private final String campaignTitle;
+    private final Long receiverId;
+    private final String receiverName;
+    private final BigDecimal amount;
+    private final AllocationStatus status;
+    private final OffsetDateTime createdAt;
 
     public ApprovedAllocationResponse(Long allocationId,
                                       Long donationId,
                                       Long campaignId,
+                                      String campaignTitle,
                                       Long receiverId,
+                                      String receiverName,
                                       BigDecimal amount,
                                       AllocationStatus status,
                                       OffsetDateTime createdAt) {
         this.allocationId = allocationId;
         this.donationId = donationId;
         this.campaignId = campaignId;
+        this.campaignTitle = campaignTitle;
         this.receiverId = receiverId;
+        this.receiverName = receiverName;
         this.amount = amount;
         this.status = status;
         this.createdAt = createdAt;
     }
 
-    public static ApprovedAllocationResponse fromEntity(Allocation allocation) {
+    public static ApprovedAllocationResponse from(Allocation allocation,
+                                                  String campaignTitle,
+                                                  String receiverName) {
         BigDecimal amount = allocation.getAmount() != null
                 ? BigDecimal.valueOf(allocation.getAmount())
                 : null;
 
         LocalDateTime createdAtLocal = allocation.getCreatedAt();
         OffsetDateTime createdAtOffset = createdAtLocal != null
-                ? createdAtLocal.atOffset(ZoneOffset.UTC)   // 필요하면 원하는 타임존으로 변경
+                ? createdAtLocal.atOffset(ZoneOffset.UTC)
                 : null;
 
         return new ApprovedAllocationResponse(
                 allocation.getId(),
                 allocation.getDonationId(),
                 allocation.getCampaignId(),
+                campaignTitle,
                 allocation.getReceiverId(),
+                receiverName,
                 amount,
                 allocation.getStatus(),
                 createdAtOffset
@@ -67,8 +77,16 @@ public class ApprovedAllocationResponse {
         return campaignId;
     }
 
+    public String getCampaignTitle() {
+        return campaignTitle;
+    }
+
     public Long getReceiverId() {
         return receiverId;
+    }
+
+    public String getReceiverName() {
+        return receiverName;
     }
 
     public BigDecimal getAmount() {

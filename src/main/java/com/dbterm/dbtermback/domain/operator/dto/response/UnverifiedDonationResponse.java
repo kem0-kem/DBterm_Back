@@ -1,42 +1,37 @@
 package com.dbterm.dbtermback.domain.operator.dto.response;
 
-import com.dbterm.dbtermback.domain.donor.entity.Donation;
-
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 public class UnverifiedDonationResponse {
 
-    private Long donationId;
-    private Long donorId;
-    private Long campaignId;
-    private Double amount;
-    private String paymentMethod;
-    private LocalDateTime donatedAt;
-    private boolean verified;
+    private final Long donationId;
+    private final Long donorId;
+    private final String donorName;
+    private final Long campaignId;
+    private final String campaignTitle;
+    private final Double amount;
+    private final String paymentMethod;
+    private final LocalDateTime donatedAt;
+    private final boolean verified;
 
-    public UnverifiedDonationResponse(Long donationId, Long donorId, Long campaignId,
-                                      Double amount, String paymentMethod,
-                                      LocalDateTime donatedAt, boolean verified) {
+    public UnverifiedDonationResponse(Long donationId,
+                                      Long donorId,
+                                      String donorName,
+                                      Long campaignId,
+                                      String campaignTitle,
+                                      Double amount,
+                                      String paymentMethod,
+                                      LocalDateTime donatedAt,
+                                      boolean verified) {
         this.donationId = donationId;
         this.donorId = donorId;
+        this.donorName = donorName;
         this.campaignId = campaignId;
+        this.campaignTitle = campaignTitle;
         this.amount = amount;
         this.paymentMethod = paymentMethod;
         this.donatedAt = donatedAt;
         this.verified = verified;
-    }
-
-    public static UnverifiedDonationResponse fromEntity(Donation donation) {
-        return new UnverifiedDonationResponse(
-                donation.getId(),
-                donation.getDonorId(),
-                donation.getCampaignId(),
-                donation.getAmount(),
-                donation.getPaymentMethod(),
-                donation.getDonatedAt(),
-                donation.getVerified()
-        );
     }
 
     public Long getDonationId() {
@@ -47,8 +42,16 @@ public class UnverifiedDonationResponse {
         return donorId;
     }
 
+    public String getDonorName() {
+        return donorName;
+    }
+
     public Long getCampaignId() {
         return campaignId;
+    }
+
+    public String getCampaignTitle() {
+        return campaignTitle;
     }
 
     public Double getAmount() {

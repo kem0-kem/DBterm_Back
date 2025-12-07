@@ -31,7 +31,7 @@ public class DonationAdminController {
         this.verifyDonationService = verifyDonationService;
     }
 
-    @PreAuthorize("hasRole('OPERATOR')")
+    @PreAuthorize("hasRole('OPERATOR') or hasRole('ADMIN')")
     @GetMapping("/unverified")
     public List<UnverifiedDonationResponse> getUnverifiedDonations(
             @RequestParam(name = "date", required = false) String dateParam
@@ -54,7 +54,7 @@ public class DonationAdminController {
         return getUnverifiedDonationsService.getUnverifiedDonations(date);
     }
 
-    @PreAuthorize("hasRole('OPERATOR')")
+    @PreAuthorize("hasRole('OPERATOR') or hasRole('ADMIN')")
     @PatchMapping("/{id}/verify")
     public ResponseEntity<Void> verifyDonation(@PathVariable("id") Long donationId) {
         verifyDonationService.verifyDonation(donationId);
